@@ -1,0 +1,179 @@
+body {
+  background: linear-gradient(to top, #7F0000, #DC3F3F);
+  font-family: "Book Antiqua", serif;
+  color: #b11d67;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 450px;
+  margin: auto;
+  background-color: #fcf7e3;
+  border: 4px solid #74121d;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 0 20px #5C1A1A;
+  color: #9b2e2e;
+}
+
+.collarbone {
+  display: inline-block;
+  width: 100%; /* small width for a number */
+   padding: 5px;
+  border: 2px solid #74121D;
+  border-radius: 10px;
+  background: #FAA4A0;
+  font-family: inherit;
+  color: #4c1515;
+  text-align: center;
+  outline: none;
+  height: 50px;
+  
+}
+
+h1 {
+  color: #9b2e2e;
+  font-size: 2em;
+  margin-bottom: 0.5em;
+}
+
+.subtitle {
+  font-size: 1em;
+  color: #9b2e2e;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin: 10px 0;
+  font-weight: bold;
+  alignment: center;
+}
+
+input[type="text"] {
+  width: 80%;
+  padding: 5px;
+  border: 2px solid #74121D;
+  border-radius: 10px;
+  background: #FAA4A0;
+  font-family: inherit;
+  color: #4c1515;
+}
+
+.status {
+  margin-top: 20px;
+  font-weight: 600;
+  color: #7F0000;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.custom-checkbox {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border: 2px solid #DC3F3F;
+  border-radius: 5px;
+  vertical-align: middle;
+  position: relative;
+}
+
+#arrival-checkbox:checked + .status .custom-checkbox::after {
+  content: "✓";
+  position: absolute;
+  left: 3px;
+  top: -2px;
+  font-size: 18px;
+  color: #DC3F3F;
+}
+
+/* Here’s the key selector! */
+#arrival-checkbox:checked ~ .arrival-message {
+  display: block;
+  animation: fadeInGlow 1s ease forwards;
+  animation-delay: 5s;
+}
+
+.arrival-message {
+  display: none;
+  margin-top: 30px;
+  background: #df928e;
+  border-radius: 15px;
+  padding: 15px;
+  font-weight: bold;
+  color: #74121d;
+  opacity: 0;
+}
+
+@keyframes fadeInGlow {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    box-shadow: none;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 0 15px 5px #ffb3b3;
+  }
+}
+
+
+.progress-container {
+  width: 100%;
+  height: 25px;
+  border: 2px solid #4C1515;
+  border-radius: 15px;
+  background: #FAA4A0;
+  margin-top: 30px;
+  overflow: hidden;
+  box-shadow: inset 0 0 8px #74121D;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #8B0000, #A52A2A);
+  border-radius: 15px;
+  transition: width 5s ease-in-out;
+}
+
+/* Animate when checkbox is checked */
+#arrival-checkbox:checked ~ .progress-container .progress-bar {
+  width: 100%;
+}
+
+.progress-label {
+  font-weight: bold;
+  margin-top: 20px;
+  color: #7F0000;
+}
+
+.warning {
+  font-size: 10px;
+}
+
+.sentence-with-input {
+  font-size: 1.2em;
+  color: #74121d;
+}
+
+.inline-input {
+  display: inline-block;
+  width: 3ch; /* small width for a number */
+  padding: 0 4px; /* reduce top and bottom padding */
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: #FAA4A0;
+  border: 2px solid #74121d;
+  border-radius: 15px;
+  text-align: center;
+  outline: none;
+  
+  /* Key tweaks for vertical centering */
+  line-height: 1.2; /* reduce line height */
+  vertical-align: bottom; /* align input baseline nicely with text */
+}

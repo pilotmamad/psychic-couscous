@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Delivery Tracker</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="container">
+  <h1> 💌 Kiss Delivery Tracker 💌</h1>
+  <p class="subtitle">Because even theoretical air mail needs to be tracked by the Mamad Postal Service</p>
+  
+  <div class="number">
+    <p class="sentence-with-input">
+      This is the 
+      <input type="number" value="9" id="kiss-count"class="inline-input" readonly> 
+      kiss to be sent.
+    </p>
+  </div>
+  <div class="tracking-info">
+    <label>
+           Origin of Package:                  
+      <textarea class="collarbone" readonly> From my sofa because I can never stop thinking about my sweetheart and how much I love her. Make sure this package arrives with full care cuz its only meant for my akshi and no one else. The package can be used as many times that akshi ever wants and she is the best girl everrrrrr!</textarea>
+    </label>
+    <label>
+      Current Location:
+      <input type="text" value="In transit">
+    </label>
+    <label>
+      Destination:
+      <input type="text" value="My favorite girl in the whole world, Akshi" readonly>
+    </label>
+  </div>
+
+  <!-- Checkbox outside label -->
+  <input type="checkbox" id="arrival-checkbox" hidden>
+
+  <!-- Label for checkbox -->
+  <label class="status" for="arrival-checkbox">
+    <span class="custom-checkbox"></span>
+    Please check to acknowledge the arrival of your delivery
+  </label>
+  <label class="warning">
+    <p>You MUST check the box above in order to recieve your package.</p>
+  </label>
+  <p class="progress-label">Travel Progress:</p>
+  <div class="progress-container">
+    <div class="progress-bar"></div>
+  </div>
+  
+  <!-- Message that shows if checkbox is checked -->
+  <div class="arrival-message">
+    ❤️💋The kiss has reached its destination!💋❤️
+    
+  </div>
+</div>
+<!-- partial -->
+  
+</body>
+</html>
