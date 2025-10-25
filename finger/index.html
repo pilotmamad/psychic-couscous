@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Fingerprint</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-State Fingerprint Lock</title>
+    <style>
+        /* Basic Reset & Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%; /* Ensure body takes full height */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column; /* Allow footer at bottom */
+            justify-content: center; /* Center main content */
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); /* More dynamic gradient */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            color: #f0f0f0;
+            padding-bottom: 40px; /* Space for footer */
+        }
+
+        /* Lock Container */
+        .lock-container {
+            text-align: center;
+            padding: 30px 40px;
+            background-color: rgba(0, 0, 0, 0.2); /* Darker transparent background */
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            margin-bottom: 20px; /* Space above footer */
+             width: 90%;
+             max-width: 450px; /* Limit width */
+        }
+
+        /* Fingerprint Area */
+        .fingerprint-area {
+            width: 130px; /* Slightly smaller */
+            height: 130px;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.15);
+             border: 3px solid rgba(255, 255, 255, 0.3); /* Thicker border */
+             transition: border-color 0.5s ease, box-shadow 0.5s ease;
+             overflow: hidden;
+        }
+
+        .fingerprint-area:hover:not(.scanning):not(.unlocked) {
+             border-color: rgba(116, 185, 255, 0.8); /* Lighter blue hint */
+             box-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+        }
+
+        /* SVG Fingerprint Icon */
+        .fingerprint-svg {
+            width: 60%;
+            height: 60%;
+            fill: rgba(255, 255, 255, 0.6);
+            transition: fill 0.5s ease;
+            z-index: 1;
+        }
+
+        /* Scanning Line */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #74b9ff, transparent); /* Lighter blue scan */
+            box-shadow: 0 0 15px #74b9ff, 0 0 30px #74b9ff;
+            border-radius: 5px;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 0s linear, opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        /* Scanning State */
+        .fingerprint-area.scanning .scan-line {
+            opacity: 0.9;
+            animation: scan-animation 1.5s linear forwards; /* Faster scan */
+        }
+
+         .fingerprint-area.scanning {
+             cursor: default;
+             border-color: #74b9ff;
+             box-shadow: 0 0 15px rgba(116, 185, 255, 0.5);
+         }
+         .fingerprint-area.scanning .fingerprint-svg {
+            fill: rgba(116, 185, 255, 0.8);
+         }
+
+
+        /* Scan Animation Keyframes */
+        @keyframes scan-animation {
+            0% { transform: translateY(0%); opacity: 0.9; }
+            100% { transform: translateY(130px); opacity: 0.9; } /* Match area height */
+        }
+
+
+        /* Unlocked State (Common style for state 1 & 2) */
+        .fingerprint-area.unlocked {
+             border-color: #55efc4; /* Mint green */
+             box-shadow: 0 0 20px rgba(85, 239, 196, 0.6);
+             cursor: pointer; /* Keep cursor pointer for next action */
+        }
+        .fingerprint-area.unlocked .fingerprint-svg {
+            fill: #55efc4;
+        }
+
+        /* Locked State (When relocked) */
+        .fingerprint-area.locked-again {
+             border-color: rgba(255, 118, 117,1.0); /* Soft red */
+             box-shadow: 0 0 15px rgba(255, 118, 117, 0.5);
+             cursor: pointer;
+        }
+        .fingerprint-area.locked-again .fingerprint-svg {
+            fill: rgba(255, 118, 117, 0.8);
+        }
+
+
+        /* Status Text */
+        .status-text {
+            margin-top: -10px;
+            margin-bottom: 25px;
+            font-size: 1em; /* Slightly larger */
+            color: rgba(255, 255, 255, 0.8);
+            height: 22px;
+            transition: color 0.5s ease, font-weight 0.3s ease;
+             font-weight: normal;
+        }
+
+        .status-text.success { color: #55efc4; font-weight: bold;}
+        .status-text.scanning { color: #74b9ff; font-weight: bold;}
+        .status-text.miss-you { color: #fd79a8; font-weight: bold;} /* Pink for miss you */
+        .status-text.locked { color: #ff7675; font-weight: bold;} /* Reddish for locked */
+
+
+        /* Message Area Styling */
+        .message-container {
+            opacity: 0;
+            visibility: hidden;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.8s ease 0.3s, max-height 0.8s ease 0.3s, visibility 0.8s 0.3s;
+            color: #eee;
+        }
+        .message-container.show {
+            opacity: 1;
+            visibility: visible;
+            max-height: 500px;
+            margin-top: 15px;
+        }
+
+        /* Message Text Styling */
+        .message-heading { /* Renamed from love-text */
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            transition: color 0.5s ease;
+        }
+        .message-heading.love { color: #fd79a8; } /* Pink */
+        .message-heading.miss { color: #a29bfe; } /* Light Purple */
+
+        .shayari {
+            font-size: 1.2em;
+            font-style: italic;
+            color: #dfe6e9; /* Light grey */
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 0 15px;
+        }
+
+        .emojis {
+            font-size: 2em;
+             opacity: 0.8;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed; /* Fixed at the bottom */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="lock-container">
+        <!-- Fingerprint Area -->
+        <div id="fingerprintArea" class="fingerprint-area" role="button" aria-label="Fingerprint Scanner" tabindex="0">
+             <!-- SVG Icon -->
+             <svg class="fingerprint-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2.75c-5.17 0-9.25 4.08-9.25 9.25s4.08 9.25 9.25 9.25 9.25-4.08 9.25-9.25S17.17 2.75 12 2.75zm0 1.5c4.35 0 7.75 3.4 7.75 7.75s-3.4 7.75-7.75 7.75-7.75-3.4-7.75-7.75S7.65 4.25 12 4.25zm-1 3.5v1.5c-2.21 0-4 1.79-4 4s1.79 4 4 4v1.5c-3.04 0-5.5-2.46-5.5-5.5s2.46-5.5 5.5-5.5zm2 0c3.04 0 5.5 2.46 5.5 5.5s-2.46 5.5-5.5 5.5v-1.5c2.21 0 4-1.79 4-4s-1.79-4-4-4V7.75zm-1 3.5c-1.1 0-2 .9-2 2s.9 2 2 2v1.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5v-1.5c1.93 0 3.5 1.57 3.5 3.5s-1.57 3.5-3.5 3.5v-1.5c1.1 0 2-.9 2-2s-.9-2-2-2zm0 2.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5z"/>
+             </svg>
+             <!-- Scanning Line -->
+             <div class="scan-line"></div>
+        </div>
+
+        <!-- Status Text -->
+        <div id="statusText" class="status-text">Place Finger</div>
+
+        <!-- The Message Container -->
+        <div id="messageContainer" class="message-container">
+            <div id="messageHeading" class="message-heading"></div>
+            <div id="shayariText" class="shayari"></div>
+            <div id="emojis" class="emojis"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // Element References
+        const fingerprintArea = document.getElementById('fingerprintArea');
+        const statusText = document.getElementById('statusText');
+        const messageContainer = document.getElementById('messageContainer');
+        const messageHeading = document.getElementById('messageHeading');
+        const shayariText = document.getElementById('shayariText');
+        const emojis = document.getElementById('emojis');
+        const svgIcon = fingerprintArea.querySelector('.fingerprint-svg');
+        const scanLine = fingerprintArea.querySelector('.scan-line'); // Needed? Maybe not directly
+
+        // State Variables
+        let lockState = 0; // 0: Locked, 1: Showing Love You, 2: Showing Miss You
+        let isScanning = false;
+        const scanDuration = 1500; // milliseconds (1.5 seconds)
+
+        // Message Content
+        const messages = {
+            love: {
+                heading: "I Love You!",
+                shayari: `YOU ARE SUCH A LOVELY GIRL AKSHI,<br>
+                          YOURE HEAVEN SENT AND ANGELIC ✨<br>
+                          <br>
+                          (red meat is the best after you,<br>
+                           and lets explore more places soon!)`,
+                emojis: "💖💞🌹",
+                headingClass: "meow"
+            },
+            miss: {
+                heading: "I Miss You!",
+                shayari: `HAHAHAHA YOU SCANNED YOUR FINGERPRINT,<br>
+                          AND NOW WE ARE MARRIED AND YOU CANT ESCAPE<br>
+                          <br>
+                          (i wanna cuddle you all night until forerver,<br>
+                           come lets live together.)`,
+                emojis: "❤️",
+                headingClass: "hehe"
+            }
+        };
+
+        function updateMessageArea(type) {
+            if (!messages[type]) return;
+
+            const content = messages[type];
+            messageHeading.textContent = content.heading;
+            shayariText.innerHTML = content.shayari; // Use innerHTML for <br>
+            emojis.textContent = content.emojis;
+            messageHeading.className = `message-heading ${content.headingClass}`; // Update class for color
+
+            messageContainer.classList.add('show');
+        }
+
+        function resetToLockedState() {
+            lockState = 0;
+            statusText.textContent = 'Place Finger';
+            statusText.className = 'status-text'; // Default status style
+            fingerprintArea.className = 'fingerprint-area'; // Reset classes fully
+            fingerprintArea.setAttribute('aria-label', 'Fingerprint Scanner - Place Finger to Unlock');
+            messageContainer.classList.remove('show');
+            // Optional: Clear message content when hidden
+            // messageHeading.textContent = '';
+            // shayariText.innerHTML = '';
+            // emojis.textContent = '';
+        }
+
+
+        function handleInteraction(event) {
+            // Prevent default touch behavior and potential double triggers
+            if (event.type === 'touchstart') {
+                event.preventDefault();
+            }
+
+            if (isScanning) {
+                return; // Ignore clicks/taps while scanning
+            }
+
+            // --- State Machine Logic ---
+            switch (lockState) {
+                case 0: // Currently Locked, start scan to unlock (state 1)
+                    isScanning = true;
+                    fingerprintArea.classList.add('scanning');
+                    fingerprintArea.classList.remove('locked-again'); // Remove red border if it was there
+                    statusText.textContent = 'Scanning...';
+                    statusText.className = 'status-text scanning';
+                    fingerprintArea.setAttribute('aria-label', 'Scanning...');
+
+                    // Simulate scan
+                    setTimeout(() => {
+                        isScanning = false;
+                        lockState = 1; // Move to state 1
+                        fingerprintArea.classList.remove('scanning');
+                        fingerprintArea.classList.add('unlocked');
+                        statusText.textContent = 'Access Granted!';
+                        statusText.className = 'status-text success';
+                        fingerprintArea.setAttribute('aria-label', 'Unlocked - Click again');
+                        updateMessageArea('love');
+                    }, scanDuration);
+                    break;
+
+                case 1: // Showing "I Love You", change to "I Miss You" (state 2)
+                    lockState = 2; // Move to state 2
+                    statusText.textContent = 'Thinking of You...';
+                    statusText.className = 'status-text miss-you';
+                    fingerprintArea.setAttribute('aria-label', 'Unlocked - Click to Lock');
+                    updateMessageArea('miss');
+                    // Keep .unlocked class
+                    break;
+
+                case 2: // Showing "I Miss You", lock the system (state 0)
+                    statusText.textContent = 'Locking...';
+                    statusText.className = 'status-text locked';
+                    fingerprintArea.setAttribute('aria-label', 'Locking...');
+                    // Add a slight delay before visually locking for effect
+                    setTimeout(() => {
+                        fingerprintArea.classList.add('locked-again'); // Show red border briefly
+                        setTimeout(resetToLockedState, 400); // Then fully reset
+                    }, 300);
+                    break;
+            }
+        }
+
+        // Add Event Listeners
+        fingerprintArea.addEventListener('click', handleInteraction);
+        fingerprintArea.addEventListener('touchstart', handleInteraction, { passive: false }); // Need passive false to call preventDefault
+
+        fingerprintArea.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                handleInteraction(event);
+            }
+        });
+
+        // Initial Setup
+        resetToLockedState(); // Ensure it starts locked correctly
+
+    </script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
